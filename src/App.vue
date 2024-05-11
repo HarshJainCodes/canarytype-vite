@@ -1,10 +1,5 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
+  <!-- <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
@@ -15,12 +10,58 @@ import HelloWorld from './components/HelloWorld.vue'
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </div>
-  </header>
+  </header> -->
 
-  <RouterView />
+  <v-app>
+    <v-app-bar class="px-3" density="compact" flat>
+      <v-spacer></v-spacer>
+      <v-tabs>
+        <v-tab v-for="link in links" :key="link"> {{ link }} </v-tab>
+      </v-tabs>
+      <v-spacer></v-spacer>
+
+      <v-btn
+        v-if="!userStore.isLoggedIn"
+        color="green"
+        variant="outlined"
+        position="absolute"
+        location="right"
+      >
+        LOGIN
+      </v-btn>
+      <v-btn v-else>
+        <v-btn color="teal-darken-3" variant="tonal" position="absolute" location="right">
+          {{ userStore.userName }}
+        </v-btn>
+      </v-btn>
+    </v-app-bar>
+
+    <v-main class="w-100">
+      <RouterView />
+    </v-main>
+  </v-app>
 </template>
 
-<style scoped>
+<script>
+import { RouterView } from 'vue-router'
+import { useUserStore } from './stores/userStore'
+// import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  components: {
+    RouterView
+  },
+  setup() {
+    const userStore = useUserStore()
+
+    const links = ['Home', 'Leaderboard']
+
+    return { userStore, links }
+  }
+}
+</script>
+
+<!-- <style scoped>
 header {
   line-height: 1.5;
   max-height: 100vh;
@@ -82,4 +123,4 @@ nav a:first-of-type {
     margin-top: 1rem;
   }
 }
-</style>
+</style> -->
