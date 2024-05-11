@@ -1,0 +1,1 @@
+# canarytype-vite
