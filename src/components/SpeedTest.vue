@@ -48,6 +48,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useLeaderboardStore } from '@/stores/leaderboard'
 
 export default {
   setup() {
@@ -58,6 +59,7 @@ export default {
     const typingSpeed = ref(0)
 
     const userStore = useUserStore()
+    const ufetchLeaderboard = useLeaderboardStore()
 
     // methods
     const addSpanAroundText = () => {
@@ -138,8 +140,23 @@ export default {
         userStore.requireLogin = true
       } else {
         console.log('token is present')
-        const res = await fetch(
-          'https//canarytype.azurewebsites.net/api/Canary/UpdateLeaderboard',
+        // const res = await fetch(
+        //   'https//canarytype.azurewebsites.net/api/Canary/UpdateLeaderboard',
+        //   {
+        //     method: 'POST',
+        //     headers: {
+        //       Authorization: 'Bearer ' + localStorage.getItem('canaryLoginToken'),
+        //       'Content-type': 'application/json; charset=UTF-8'
+        //     },
+        //     body: JSON.stringify({
+        //       userName: localStorage.getItem('canaryUserName'),
+        //       bestTypingSpeed: typingSpeed.value
+        //     })
+        //   }
+        // )
+
+        const response = await fetch(
+          'https://canarytype.azurewebsites.net/api/Canary/UpdateLeaderboard',
           {
             method: 'POST',
             headers: {
@@ -153,8 +170,9 @@ export default {
           }
         )
 
-        if (res.status === 204) {
+        if (response.status === 204) {
           console.log('updated leaderboard succesfully')
+          ufetchLeaderboard.fetchleaderboard = true
         }
       }
     }

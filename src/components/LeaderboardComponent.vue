@@ -20,6 +20,8 @@ import 'ag-grid-community/styles/ag-theme-quartz.css' // Optional Theme applied 
 import { AgGridVue } from 'ag-grid-vue3' // Vue Data Grid Component
 
 import { ref, onMounted } from 'vue'
+import { useLeaderboardStore } from '../stores/leaderboard'
+import { onActivated } from 'vue'
 
 export default {
   components: {
@@ -27,6 +29,8 @@ export default {
   },
   setup() {
     const leaderboard = ref([])
+
+    const ufetchLeaderboard = useLeaderboardStore()
 
     // Column Definitions: Defines the columns to be displayed.
     const colDefs = ref([{ field: 'userName' }, { field: 'bestTypingSpeed' }])
@@ -47,11 +51,18 @@ export default {
 
       if (leaderboardRes.status === 200) {
         leaderboard.value = await leaderboardRes.json()
+        ufetchLeaderboard.fetchleaderboard = false
       }
     }
 
-    onMounted(() => {
-      fetchLeaderboard()
+    onActivated(async () => {
+      if (ufetchLeaderboard.fetchleaderboard === true) {
+        await fetchLeaderboard()
+      }
+    })
+
+    onMounted(async () => {
+      await fetchLeaderboard()
     })
 
     return {
