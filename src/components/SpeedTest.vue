@@ -46,13 +46,159 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '@/stores/userStore'
 
 export default {
   setup() {
     const time = ref(2)
+    const stringToType = ref('Loading........................Please wait')
+    const typingStarted = ref(false)
+    const typingFinished = ref(false)
+    const typingSpeed = ref(0)
 
-    return { time }
+    const userStore = useUserStore()
+
+    // methods
+    const addSpanAroundText = () => {
+      setTimeout(() => {
+        const enteredText = document.querySelector('textarea').value
+
+        const resultDisplayEle = document.querySelector('.resultDisplay')
+        resultDisplayEle.innerHTML = ''
+
+        for (let i = 0; i < enteredText.length; i++) {
+          if (enteredText[i] === stringToType.value[i]) {
+            resultDisplayEle.innerHTML += `<span style="color: #00BFA5;">${enteredText[i]}</span>`
+          } else {
+            resultDisplayEle.innerHTML += `<span style="color: #EF5350;">${stringToType.value[i]}</span>`
+          }
+        }
+      }, 10)
+    }
+
+    const startTimer = () => {
+      if (!typingStarted.value) {
+        typingStarted.value = true
+
+        const timer = setInterval(() => {
+          if (time.value > 0) {
+            time.value--
+          } else {
+            typingFinished.value = true
+            calculateTypingSpeed()
+            clearInterval(timer)
+          }
+        }, 1000)
+      }
+      addSpanAroundText()
+    }
+
+    const getStringToTypeFromBackend = async () => {
+      const wordsToType = await fetch(
+        'https://canarytype.azurewebsites.net/api/Canary/RandomWords',
+        {
+          method: 'GET'
+        }
+      )
+      const w = await wordsToType.json()
+
+      let str = ''
+
+      for (let i = 0; i < w.length - 2; i++) {
+        str += w[i] + ' '
+      }
+      str += w[w.length - 2]
+
+      stringToType.value = str
+    }
+
+    const calculateTypingSpeed = () => {
+      const wordsTyped = document.querySelector('textarea').value.split(' ')
+      const availableWords = stringToType.value.split(' ')
+
+      let charsInTotalCorrectWords = 0
+
+      for (const word of wordsTyped) {
+        for (const word2 of availableWords) {
+          if (word === word2) {
+            charsInTotalCorrectWords += word.length
+            break
+          }
+        }
+      }
+
+      typingSpeed.value = Math.round((charsInTotalCorrectWords / 5) * 6)
+      document.querySelector('textarea').blur()
+    }
+
+    const saveResult = async () => {
+      if (localStorage.getItem('canaryLoginToken') === null) {
+        // if token is not present, then we prompt the user to login
+        userStore.requireLogin = true
+      } else {
+        console.log('token is present')
+        const res = await fetch(
+          'https//canarytype.azurewebsites.net/api/Canary/UpdateLeaderboard',
+          {
+            method: 'POST',
+            headers: {
+              Authorization: 'Bearer ' + localStorage.getItem('canaryLoginToken'),
+              'Content-type': 'application/json; charset=UTF-8'
+            },
+            body: JSON.stringify({
+              userName: localStorage.getItem('canaryUserName'),
+              bestTypingSpeed: typingSpeed.value
+            })
+          }
+        )
+
+        if (res.status === 204) {
+          console.log('updated leaderboard succesfully')
+        }
+      }
+    }
+
+    const checkIfNeedToLogin = async () => {
+      if (localStorage.getItem('canaryLoginToken') === null) {
+        // no need to check if token is expired as its the first time they are logging in
+        return
+      }
+      const initialLoginAttempt = await fetch(
+        'https://canarytype.azurewebsites.net/api/Canary/Login',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('canaryLoginToken')
+          }
+        }
+      )
+
+      if (initialLoginAttempt.status === 200) {
+        userStore.isLoggedIn = true
+        userStore.userName = localStorage.getItem('canaryUserName')
+      } else if (initialLoginAttempt.status === 401) {
+        console.log('token expired')
+        localStorage.removeItem('canaryLoginToken')
+        localStorage.removeItem('canaryUserName')
+      }
+    }
+
+    onMounted(() => {
+      getStringToTypeFromBackend()
+
+      checkIfNeedToLogin()
+    })
+
+    return {
+      stringToType,
+      typingStarted,
+      typingFinished,
+      typingSpeed,
+      time,
+      startTimer,
+      saveResult
+    }
   }
 }
 </script>

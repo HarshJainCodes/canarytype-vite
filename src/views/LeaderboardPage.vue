@@ -6,7 +6,7 @@
       </v-col>
 
       <v-col cols="12" md="8" class="mt-5">
-        <speed-test class="elevation-10" />
+        <leaderboard-component class="elevation-10" />
       </v-col>
 
       <v-col cols="12" md="2">
@@ -19,11 +19,11 @@
 </template>
 
 <script>
-// import TheWelcome from '../components/TheWelcome.vue'
-import SpeedTest from '../components/SpeedTest.vue'
+import LeaderboardComponent from '../components/LeaderboardComponent.vue'
+
 export default {
   components: {
-    SpeedTest
+    LeaderboardComponent
   },
   setup() {}
 }

@@ -15,7 +15,7 @@
   <v-app>
     <v-app-bar class="px-3" density="compact" flat>
       <v-spacer></v-spacer>
-      <v-tabs>
+      <v-tabs @update:model-value="onChangeTab($event)">
         <v-tab v-for="link in links" :key="link"> {{ link }} </v-tab>
       </v-tabs>
       <v-spacer></v-spacer>
@@ -26,37 +26,59 @@
         variant="outlined"
         position="absolute"
         location="right"
+        @click="userStore.requireLogin = true"
       >
         LOGIN
       </v-btn>
-      <v-btn v-else>
-        <v-btn color="teal-darken-3" variant="tonal" position="absolute" location="right">
-          {{ userStore.userName }}
-        </v-btn>
+      <v-btn v-else color="teal-darken-3" variant="tonal" position="absolute" location="right">
+        {{ userStore.userName }}
       </v-btn>
     </v-app-bar>
 
     <v-main class="w-100">
-      <RouterView />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component"></component>
+        </keep-alive>
+      </router-view>
+
+      <v-dialog v-model="userStore.requireLogin" width="30%">
+        <login-dialog />
+      </v-dialog>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import { useUserStore } from './stores/userStore'
+
+import LoginDialog from './components/LoginDialouge.vue'
 // import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   components: {
-    RouterView
+    RouterView,
+    LoginDialog
   },
   setup() {
     const userStore = useUserStore()
 
     const links = ['Home', 'Leaderboard']
 
-    return { userStore, links }
+    const router = useRouter()
+
+    const onChangeTab = (value) => {
+      switch (value) {
+        case 0:
+          router.push('/')
+          break
+        case 1:
+          router.push('/leaderboard')
+      }
+    }
+
+    return { userStore, links, onChangeTab }
   }
 }
 </script>
