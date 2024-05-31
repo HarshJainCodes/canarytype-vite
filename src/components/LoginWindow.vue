@@ -4,12 +4,19 @@
       <div>
         <div class="text-h5">Login</div>
 
-        <v-text-field class="pt-10" label="User Name" v-model="userName"> </v-text-field>
+        <v-text-field data-qa-id="login-input" class="pt-10" label="User Name" v-model="userName">
+        </v-text-field>
 
-        <v-text-field label="Password" type="password" v-model="password"> </v-text-field>
+        <v-text-field
+          data-qa-id="password-input"
+          label="Password"
+          type="password"
+          v-model="password"
+        >
+        </v-text-field>
       </div>
 
-      <v-btn width="100%" @click="login"> LOGIN </v-btn>
+      <v-btn width="100%" data-qa-id="login-btn" @click="login"> LOGIN </v-btn>
     </div>
   </v-sheet>
 </template>

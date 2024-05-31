@@ -3,13 +3,13 @@
     <div class="w-100 d-flex text-h4 text-teal-accent-4 justify-center">Welcome To Canary Type</div>
 
     <v-card-title>
-      <div class="pt-10">
+      <div class="pt-10" data-qa-id="timer">
         {{ time }}
       </div>
     </v-card-title>
 
     <v-card-text class="d-flex flex-column">
-      <div class="textToType text-h5">
+      <div data-qa-id="textToType" class="textToType text-h5">
         <div class="textToType1 text-disabled">
           {{ stringToType }}
         </div>
@@ -17,6 +17,7 @@
         <div class="resultDisplay"></div>
 
         <textarea
+          data-qa-id="textarea"
           style="font-family: myRobotoFont; resize: none"
           class="text-h5 text-transparent"
           name="typingArea"
@@ -36,7 +37,7 @@
           class="mt-5 text-h5 text-teal-darken-1 d-flex justify-center"
           style="font-family: myRobotoFont"
         >
-          <v-btn color="teal-darken-1" variant="outlined" @click="saveResult">
+          <v-btn data-qa-id="saveBtn" color="teal-darken-1" variant="outlined" @click="saveResult">
             Save Your Result
           </v-btn>
         </div>
@@ -52,7 +53,7 @@ import { useLeaderboardStore } from '@/stores/leaderboard'
 
 export default {
   setup() {
-    const time = ref(2)
+    const time = ref(10)
     const stringToType = ref('Loading........................Please wait')
     const typingStarted = ref(false)
     const typingFinished = ref(false)

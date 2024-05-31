@@ -22,6 +22,7 @@
 
       <v-btn
         v-if="!userStore.isLoggedIn"
+        data-qa-id="loginBtn"
         color="green"
         variant="outlined"
         position="absolute"
@@ -30,9 +31,32 @@
       >
         LOGIN
       </v-btn>
-      <v-btn v-else color="teal-darken-3" variant="tonal" position="absolute" location="right">
-        {{ userStore.userName }}
-      </v-btn>
+      <div v-else>
+        <v-menu>
+          <template #activator="{ props }">
+            <v-btn
+              data-qa-id="login-button-after-login"
+              v-bind="props"
+              color="teal-darken-3"
+              variant="tonal"
+              position="absolute"
+              location="right"
+            >
+              {{ userStore.userName }}
+            </v-btn>
+          </template>
+
+          <v-list class="mx-0" data-qa-id="login-menu-list">
+            <v-list-item class="w-100 px-0">
+              <v-btn class="w-100 px-0" @click="logOut"> LOG OUT </v-btn>
+            </v-list-item>
+
+            <v-list-item class="w-100 px-0">
+              <v-btn class="w-100 px-0"> PROFILE </v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
     </v-app-bar>
 
     <v-main class="w-100">
@@ -42,8 +66,8 @@
         </keep-alive>
       </router-view>
 
-      <v-dialog v-model="userStore.requireLogin" width="30%">
-        <login-dialog />
+      <v-dialog data-qa-id="login-dialouge" v-model="userStore.requireLogin" width="30%">
+        <login-dialog data-qa-id="login-dialouge-component" />
       </v-dialog>
     </v-main>
   </v-app>
@@ -54,7 +78,6 @@ import { RouterView, useRouter } from 'vue-router'
 import { useUserStore } from './stores/userStore'
 
 import LoginDialog from './components/LoginDialouge.vue'
-// import HelloWorld from './components/HelloWorld.vue'
 
 export default {
   components: {
@@ -78,71 +101,15 @@ export default {
       }
     }
 
-    return { userStore, links, onChangeTab }
+    const logOut = () => {
+      localStorage.removeItem('canaryLoginToken')
+      localStorage.removeItem('canaryUserName')
+
+      userStore.isLoggedIn = false
+      userStore.userName = ''
+    }
+
+    return { userStore, links, onChangeTab, logOut }
   }
 }
 </script>
-
-<!-- <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style> -->
